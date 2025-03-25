@@ -1,0 +1,2 @@
+console.log(await deployer.getBalance());
+const [deployer] = await ethers.getSigners();
