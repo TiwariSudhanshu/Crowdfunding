@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import crowdfundingABI from "../contractABI";
 import { contractAddress } from "../config";
+import { toast } from 'react-toastify';
 
 const CrowdfundingContext = createContext();
 
@@ -11,22 +12,22 @@ export const CrowdfundingProvider = ({ children }) => {
   const getEthereumContract = async () => {
     try {
       if (!window.ethereum) {
-        alert("MetaMask is required! Please install it.");
-        console.error("MetaMask not found.");
+        toast.error("MetaMask is required! Please install it.");
+        toast.error("MetaMask not found.");
         return null;
       }
 
       // Connect to Ethereum provider
       const provider = new ethers.BrowserProvider(window.ethereum);
       if (!provider) {
-        console.error("Ethereum provider not found.");
+        toast.error("Ethereum provider not found.");
         return null;
       }
 
       // Get signer (user account)
       const signer = await provider.getSigner();
       if (!signer) {
-        console.error("Failed to get signer. Please connect MetaMask.");
+        toast.error("Failed to get signer. Please connect MetaMask.");
         return null;
       }
 
@@ -37,7 +38,7 @@ export const CrowdfundingProvider = ({ children }) => {
         signer
       );
       if (!contract) {
-        console.error("Failed to create contract instance.");
+        toast.error("Failed to create contract instance.");
         return null;
       }
 
@@ -45,13 +46,13 @@ export const CrowdfundingProvider = ({ children }) => {
       return contract;
     } catch (error) {
       console.error("Error initializing Ethereum contract:", error);
-      alert(`Error hehe: ${error.message}`);
+      toast.error(`Error : ${error.message}`);
       return null;
     }
   };
 
   const connectWallet = async () => {
-    if (!window.ethereum) return alert("Install MetaMask!");
+    if (!window.ethereum) return toast.error("Install MetaMask!");
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
@@ -68,7 +69,7 @@ export const CrowdfundingProvider = ({ children }) => {
         deadline
       );
       await tx.wait();
-      alert("Campaign Created Successfully!");
+      toast.success("Campaign Created Successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -81,7 +82,7 @@ export const CrowdfundingProvider = ({ children }) => {
         value: ethers.parseEther(amount),
       });
       await tx.wait();
-      alert("Donation Successful!");
+      toast.success("Donation Successful!");
     } catch (error) {
       console.error(error);
     }

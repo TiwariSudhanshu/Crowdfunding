@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Upload, Plus, Image } from "lucide-react";
+import { X, Upload, Plus, Image, Loader2 } from "lucide-react";
 import { useCrowdfunding } from "../context/CrowdFundingContext";
 
 const CreateCampaignModal = ({ isOpen, onClose, onCreateCampaign }) => {
@@ -9,6 +9,8 @@ const CreateCampaignModal = ({ isOpen, onClose, onCreateCampaign }) => {
     target: "",
     deadline: "",
   });
+
+  const [loading, setLoading] = useState(false);
   const { createCampaign } = useCrowdfunding();
 
   const handleInputChange = (e) => {
@@ -21,13 +23,21 @@ const CreateCampaignModal = ({ isOpen, onClose, onCreateCampaign }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createCampaign(
-      campaignData.title,
-      campaignData.description,
-      campaignData.target,
-      Math.floor(new Date(campaignData.deadline).getTime() / 1000)
-    );
-    onClose();
+    setLoading(true);
+    
+    try {
+      await createCampaign(
+        campaignData.title,
+        campaignData.description,
+        campaignData.target,
+        Math.floor(new Date(campaignData.deadline).getTime() / 1000)
+      );
+      onClose();
+    } catch (error) {
+      console.error("Error creating campaign:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -111,16 +121,30 @@ const CreateCampaignModal = ({ isOpen, onClose, onCreateCampaign }) => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit Button with Loader */}
           <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full bg-emerald-600 text-white py-4 rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2"
-            >
-              <Plus size={20} />
-              <span>Create Campaign</span>
-            </button>
-          </div>
+  <button
+    type="submit"
+    disabled={loading}
+    className={`w-full py-4 rounded-xl flex items-center justify-center space-x-2 transition-colors ${
+      loading
+        ? "bg-emerald-500 cursor-not-allowed"
+        : "bg-emerald-600 hover:bg-emerald-700"
+    } text-white relative`}
+  >
+    {loading ? (
+      <span className="absolute flex items-center">
+        <Loader2 className="animate-spin" size={20} />
+      </span>
+    ) : (
+      <>
+        <Plus size={20} />
+        <span>Create Campaign</span>
+      </>
+    )}
+  </button>
+</div>
+
         </form>
       </div>
     </div>

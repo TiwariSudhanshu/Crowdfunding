@@ -7,6 +7,7 @@ import { ethers } from "ethers";
 import crowdfundingABI from "./contractABI";
 import { contractAddress } from "./config";
 import { useCrowdfunding } from "./context/CrowdFundingContext";
+import { toast } from "react-toastify";
 const App = () => {
   // Setting up solidity
   const { currentAccount, connectWallet } = useCrowdfunding();
@@ -48,10 +49,12 @@ const App = () => {
           Active Campaigns
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
-          {campaigns.length > 0 ? (
-            campaigns.map((campaign) => (
-              <CampaignCard key={campaign.id} {...campaign} />
-            ))
+          {campaigns?.filter((campaign) => campaign.title)?.length > 0 ? (
+            campaigns
+              .filter((campaign) => campaign.title)
+              .map((campaign) => (
+                <CampaignCard key={campaign.id || campaign._id} {...campaign} />
+              ))
           ) : (
             <p className="text-zinc-300 col-span-full">
               No campaigns available
